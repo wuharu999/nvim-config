@@ -295,6 +295,15 @@ return {
         },
         root_dir = function(fname)
           local util = require("lspconfig.util")
+
+          -- Some startup paths can pass bufnr here; normalize to a filepath.
+          if type(fname) == "number" then
+            fname = vim.api.nvim_buf_get_name(fname)
+          end
+          if type(fname) ~= "string" or fname == "" then
+            return vim.loop.cwd()
+          end
+
           return util.root_pattern("compile_commands.json", "compile_flags.txt", "package.xml", "CMakeLists.txt", ".git")(fname)
             or util.find_git_ancestor(fname)
         end,
