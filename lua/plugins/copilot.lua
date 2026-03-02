@@ -7,6 +7,9 @@ return {
       -- Keep normal <Tab> behavior; do not let Copilot map Tab
       vim.g.copilot_no_tab_map = true
 
+      -- Keep Copilot ghost text visible even when completion popup is open
+      vim.g.copilot_hide_during_completion = false
+
       -- Enable Copilot inline suggestions in all filetypes (including comments)
       vim.g.copilot_filetypes = {
         ["*"] = true,
@@ -26,9 +29,13 @@ return {
       -- Recommended inline-suggestion controls
       { "<M-]>", "<Plug>(copilot-next)", mode = "i", desc = "Copilot: Next suggestion" },
       { "<M-[>", "<Plug>(copilot-previous)", mode = "i", desc = "Copilot: Previous suggestion" },
+      { "<M-\\>", "<Plug>(copilot-suggest)", mode = "i", desc = "Copilot: Request suggestion" },
       { "<C-]>", "<Plug>(copilot-dismiss)", mode = "i", desc = "Copilot: Dismiss suggestion" },
       { "<M-l>", "<Plug>(copilot-accept-line)", mode = "i", desc = "Copilot: Accept line" },
       { "<M-w>", "<Plug>(copilot-accept-word)", mode = "i", desc = "Copilot: Accept word" },
+
+      -- If your account has multiple completion models, this opens selector
+      { "<leader>am", "<cmd>Copilot model<cr>", mode = "n", desc = "Copilot: Select model" },
     },
   },
 }
