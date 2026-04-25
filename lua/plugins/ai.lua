@@ -69,93 +69,7 @@ local function detect_compile_commands_dir(root_dir)
   return nil
 end
 
-local function codex_cmd()
-  local script = [=[
-set -euo pipefail
-ROOT="$(git -C "${PWD}" rev-parse --show-toplevel 2>/dev/null || pwd)"
-CONFIG="$ROOT/.codex-config"
-MODEL=""
-if [ -f "$CONFIG" ]; then
-  MODEL=$(sed -n 's/^[[:space:]]*model[[:space:]]*=[[:space:]]*//p' "$CONFIG" | head -n 1 | tr -d '"' | tr -d "'")
-fi
-if [ -z "$MODEL" ]; then
-  MODEL="codex-mini-latest"
-  if [ ! -f "$CONFIG" ]; then
-    printf 'model="%s"\n' "$MODEL" > "$CONFIG"
-  elif ! grep -q '^[[:space:]]*model[[:space:]]*=' "$CONFIG"; then
-    printf '\nmodel="%s"\n' "$MODEL" >> "$CONFIG"
-  fi
-fi
-CODEX_HOME="${CODEX_HOME:-$HOME/.codex}"
-mkdir -p "$CODEX_HOME"
-INSTR_DIR="$CODEX_HOME/project_instructions"
-mkdir -p "$INSTR_DIR"
-INSTR_FILE="$INSTR_DIR/$(printf '%s' "$ROOT" | sed 's/[^A-Za-z0-9]/_/g').md"
-{
-  echo "# Project context"
-  echo "Project root: $ROOT"
-  echo ""
-  echo "Top-level entries:"
-  ls -a "$ROOT"
-  if [ -f "$ROOT/AGENTS.md" ]; then
-    echo ""
-    echo "## AGENTS.md"
-    cat "$ROOT/AGENTS.md"
-  fi
-  if [ -f "$ROOT/README.md" ]; then
-    echo ""
-    echo "## README.md"
-    cat "$ROOT/README.md"
-  fi
-} > "$INSTR_FILE"
-RESUME_MODE=""
-if [ -f "$CONFIG" ]; then
-  RESUME_MODE=$(sed -n 's/^[[:space:]]*resume[[:space:]]*=[[:space:]]*//p' "$CONFIG" | head -n 1 | tr -d '"' | tr -d "'")
-fi
-if codex resume --help >/dev/null 2>&1; then
-  if [ "$RESUME_MODE" = "last" ] || [ "$RESUME_MODE" = "true" ] || [ "$RESUME_MODE" = "1" ]; then
-    exec codex resume --last
-  fi
-fi
-exec codex --full-auto -m "$MODEL" -c "model_instructions_file=\"$INSTR_FILE\""
-]=]
-
-  return { "bash", "-lc", script }
-end
-
 return {
-  {
-    "kkrampis/codex.nvim",
-    cmd = { "Codex", "CodexToggle" },
-    keys = {
-      {
-        "<leader>ac",
-        function()
-          require("codex").toggle()
-        end,
-        desc = "Codex: Toggle",
-        mode = { "n", "t" },
-      },
-    },
-    opts = {
-      cmd = codex_cmd(),
-      panel = true,
-      keymaps = {
-        toggle = nil,
-      },
-    },
-    config = function(_, opts)
-      require("codex").setup(opts)
-
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "codex",
-        callback = function()
-          pcall(vim.cmd, "wincmd H")
-        end,
-      })
-    end,
-  },
-
   {
     "mason-org/mason.nvim",
     opts = function(_, opts)
@@ -304,8 +218,13 @@ return {
             return vim.loop.cwd()
           end
 
-          return util.root_pattern("compile_commands.json", "compile_flags.txt", "package.xml", "CMakeLists.txt", ".git")(fname)
-            or util.find_git_ancestor(fname)
+          return util.root_pattern(
+            "compile_commands.json",
+            "compile_flags.txt",
+            "package.xml",
+            "CMakeLists.txt",
+            ".git"
+          )(fname) or util.find_git_ancestor(fname)
         end,
         on_new_config = function(new_config, root_dir)
           local cc_dir = detect_compile_commands_dir(root_dir)
