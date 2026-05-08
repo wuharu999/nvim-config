@@ -241,6 +241,13 @@ return {
           table.insert(new_config.cmd, "--compile-commands-dir=" .. cc_dir)
         end,
       })
+
+      opts.setup = opts.setup or {}
+      opts.setup.clangd = opts.setup.clangd
+        or function(_, server_opts)
+          require("lspconfig").clangd.setup(server_opts)
+          return true
+        end
     end,
   },
 }
