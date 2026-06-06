@@ -1,38 +1,37 @@
 return {
   {
-    "gen740/SmoothCursor.nvim",
+    "sphamba/smear-cursor.nvim",
     event = "VeryLazy",
-    config = function()
-      require("smoothcursor").setup({
-        type = "default",
-        autostart = true,
-        fancy = {
-          enable = true,
-          head = { cursor = ">", texthl = "SmoothCursor" },
-          body = {
-            { cursor = "o", texthl = "SmoothCursorRed" },
-            { cursor = "o", texthl = "SmoothCursorOrange" },
-            { cursor = "*", texthl = "SmoothCursorYellow" },
-            { cursor = "*", texthl = "SmoothCursorGreen" },
-            { cursor = ".", texthl = "SmoothCursorAqua" },
-            { cursor = ".", texthl = "SmoothCursorBlue" },
-            { cursor = ".", texthl = "SmoothCursorPurple" },
-          },
-          tail = { cursor = nil, texthl = "SmoothCursor" },
-        },
-        speed = 25,
-        intervals = 35,
-        priority = 10,
-        threshold = 1,
-        flyin_effect = nil,
-        disable_float_win = true,
-        disabled_filetypes = {
-          "snacks_dashboard",
-          "snacks_terminal",
-          "TelescopePrompt",
-        },
-      })
-    end,
+    cond = vim.g.neovide == nil,
+    keys = {
+      { "<leader>uC", "<cmd>SmearCursorToggle<cr>", desc = "Toggle Cursor Animation" },
+    },
+    opts = {
+      cursor_color = "none",
+      hide_target_hack = true,
+      never_draw_over_target = true,
+      time_interval = 8,
+      smear_between_buffers = true,
+      smear_between_neighbor_lines = true,
+      smear_horizontally = true,
+      smear_vertically = true,
+      smear_diagonally = true,
+      min_horizontal_distance_smear = 0,
+      min_vertical_distance_smear = 0,
+      stiffness = 0.5,
+      trailing_stiffness = 0.4,
+      stiffness_insert_mode = 0.5,
+      trailing_stiffness_insert_mode = 0.4,
+      anticipation = 0,
+      damping = 0.92,
+      damping_insert_mode = 0.92,
+      distance_stop_animating = 0.03,
+      filetypes_disabled = {
+        "snacks_dashboard",
+        "snacks_terminal",
+        "TelescopePrompt",
+      },
+    },
   },
 
   {
